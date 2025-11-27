@@ -2,10 +2,10 @@ output "cluster_name" {
   value = module.eks.cluster_name
 }
 
-output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
+output "task_web_service_name" {
+  value = kubernetes_service.task_web.metadata[0].name
 }
 
-output "cluster_certificate_authority_data" {
-  value = module.eks.cluster_certificate_authority_data
+output "task_web_service_type" {
+  value = kubernetes_service.task_web.spec[0].type
 }
