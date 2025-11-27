@@ -1,103 +1,106 @@
 const express = require("express");
 const authJwt = require("../middlewares/authJwt");
 const db = require("../config/db");
-
 const router = express.Router();
 
-// Todas las rutas /tasks requieren JWT válido
 router.use(authJwt);
 
-// GET /tasks → solo tareas del usuario logueado
-router.get("/", async (req, res) => {
+// 1. Obtener grupos del docente logueado
+router.get("/my-groups", async (req, res) => {
+  // Si no es docente, devolver vacío
+  if (req.user.role !== 'docente') return res.json([]);
+  
   try {
+    // JOIN con la tabla teacher_groups para ver qué tiene asignado este docente
     const result = await db.query(
-      "SELECT id, title, done, created_at, updated_at FROM tasks WHERE user_id = $1 ORDER BY id",
+      `SELECT g.id, g.name 
+       FROM groups g 
+       JOIN teacher_groups tg ON g.id = tg.group_id 
+       WHERE tg.teacher_id = $1`,
       [req.user.id]
     );
     res.json(result.rows);
   } catch (err) {
-    console.error("Error en GET /tasks:", err);
-    res.status(500).json({ message: "Error al obtener tareas" });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// POST /tasks
+// 2. Obtener alumnos de un grupo específico
+router.get("/students/:groupId", async (req, res) => {
+  try {
+    const result = await db.query(
+      "SELECT id, username FROM users WHERE group_id = $1 AND role = 'alumno'",
+      [req.params.groupId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Crear Tarea
 router.post("/", async (req, res) => {
-  const { title } = req.body;
-  if (!title) {
-    return res.status(400).json({ message: "title es requerido" });
-  }
+  if (req.user.role === 'alumno') return res.status(403).json({ message: "No autorizado" });
+
+  const { title, group_id, mode, student_ids } = req.body;
 
   try {
-    const result = await db.query(
-      `INSERT INTO tasks (user_id, title, done)
-       VALUES ($1, $2, $3)
-       RETURNING id, title, done, created_at, updated_at`,
-      [req.user.id, title, false]
-    );
-    res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error("Error en POST /tasks:", err);
-    res.status(500).json({ message: "Error al crear tarea" });
-  }
-});
+    let targetStudents = [];
 
-// PUT /tasks/:id
-router.put("/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const { title, done } = req.body;
-
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "id inválido" });
-  }
-
-  try {
-    const result = await db.query(
-      `UPDATE tasks
-       SET title = COALESCE($1, title),
-           done = COALESCE($2, done),
-           updated_at = NOW()
-       WHERE id = $3 AND user_id = $4
-       RETURNING id, title, done, created_at, updated_at`,
-      [title ?? null, done ?? null, id, req.user.id]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "Tarea no encontrada" });
+    if (mode === 'all') {
+      // Buscar todos los alumnos del grupo
+      const resStudents = await db.query("SELECT id FROM users WHERE group_id = $1 AND role = 'alumno'", [group_id]);
+      targetStudents = resStudents.rows.map(r => r.id);
+    } else {
+      // Usar lista manual
+      targetStudents = student_ids || [];
     }
 
-    res.json(result.rows[0]);
+    if (targetStudents.length === 0) return res.status(400).json({ message: "No hay alumnos" });
+
+    // Insertar tarea para cada alumno
+    for (const studentId of targetStudents) {
+      await db.query(
+        "INSERT INTO tasks (title, assigned_to, created_by, group_id) VALUES ($1, $2, $3, $4)",
+        [title, studentId, req.user.id, group_id]
+      );
+    }
+
+    res.json({ message: "Tareas creadas exitosamente" });
   } catch (err) {
-    console.error("Error en PUT /tasks/:id:", err);
-    res.status(500).json({ message: "Error al actualizar tarea" });
+    console.error(err);
+    res.status(500).json({ message: "Error creando tarea" });
   }
 });
 
-// DELETE /tasks/:id
+// 4. Ver Tareas
+router.get("/", async (req, res) => {
+  try {
+    let query;
+    if (req.user.role === 'alumno') {
+      query = `SELECT t.*, u.username as docente, g.name as group_name 
+               FROM tasks t 
+               JOIN users u ON t.created_by = u.id 
+               LEFT JOIN groups g ON t.group_id = g.id
+               WHERE t.assigned_to = $1 ORDER BY t.id DESC`;
+    } else {
+      query = `SELECT t.*, u.username as alumno, g.name as group_name 
+               FROM tasks t 
+               JOIN users u ON t.assigned_to = u.id 
+               LEFT JOIN groups g ON t.group_id = g.id
+               WHERE t.created_by = $1 ORDER BY t.id DESC`;
+    }
+    const result = await db.query(query, [req.user.id]);
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Borrar Tarea
 router.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "id inválido" });
-  }
-
-  try {
-    const result = await db.query(
-      `DELETE FROM tasks
-       WHERE id = $1 AND user_id = $2
-       RETURNING id, title, done, created_at, updated_at`,
-      [id, req.user.id]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "Tarea no encontrada" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("Error en DELETE /tasks/:id:", err);
-    res.status(500).json({ message: "Error al eliminar tarea" });
-  }
+    await db.query("DELETE FROM tasks WHERE id = $1 AND created_by = $2", [req.params.id, req.user.id]);
+    res.json({ message: "Eliminada" });
 });
 
 module.exports = router;

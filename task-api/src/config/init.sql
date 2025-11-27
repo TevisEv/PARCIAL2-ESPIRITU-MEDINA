@@ -1,6 +1,3 @@
--- ===========================
--- Tabla de usuarios
--- ===========================
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
@@ -9,9 +6,6 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
--- ===========================
--- Tabla de tokens de autenticación
--- ===========================
 CREATE TABLE IF NOT EXISTS auth_tokens (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -21,9 +15,6 @@ CREATE TABLE IF NOT EXISTS auth_tokens (
   revoked_at TIMESTAMP
 );
 
--- ===========================
--- Tabla de tareas
--- ===========================
 CREATE TABLE IF NOT EXISTS tasks (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

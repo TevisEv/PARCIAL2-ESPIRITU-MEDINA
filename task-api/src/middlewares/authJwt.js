@@ -3,52 +3,29 @@ const db = require("../config/db");
 
 async function authJwt(req, res, next) {
   const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token no proporcionado" });
-  }
+  if (!authHeader) return res.status(401).json({ message: "Token faltante" });
 
   const [scheme, token] = authHeader.split(" ");
-
-  if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ message: "Formato de token inválido" });
-  }
+  if (scheme !== "Bearer" || !token) return res.status(401).json({ message: "Token inválido" });
 
   try {
-    // 1) Verificar firma y expiración del JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 2) Verificar que el token exista en DB y no esté revocado ni expirado
-    const result = await db.query(
-      `SELECT id, user_id, token, created_at, expires_at, revoked_at
-       FROM auth_tokens
-       WHERE token = $1`,
-      [token]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(401).json({ message: "Token no registrado o inválido" });
+    
+    // Verificar en DB
+    const result = await db.query("SELECT * FROM auth_tokens WHERE token = $1", [token]);
+    if (result.rowCount === 0 || result.rows[0].revoked_at) {
+      return res.status(401).json({ message: "Sesión inválida" });
     }
 
-    const dbToken = result.rows[0];
+    // Obtener datos frescos del usuario (Rol y Grupo)
+    const userRes = await db.query("SELECT id, username, role, group_id FROM users WHERE id = $1", [result.rows[0].user_id]);
+    
+    if (userRes.rowCount === 0) return res.status(401).json({ message: "Usuario no existe" });
 
-    if (dbToken.revoked_at) {
-      return res.status(401).json({ message: "Token revocado" });
-    }
-
-    if (dbToken.expires_at && new Date(dbToken.expires_at) < new Date()) {
-      return res.status(401).json({ message: "Token expirado" });
-    }
-
-    // 3) Adjuntamos usuario al request
-    req.user = {
-      id: dbToken.user_id,
-      username: decoded.username,
-    };
-
+    req.user = userRes.rows[0]; // { id, username, role, group_id }
     next();
   } catch (err) {
-    console.error("Error en authJwt:", err);
-    return res.status(401).json({ message: "Token inválido o expirado" });
+    return res.status(401).json({ message: "Token expirado o error" });
   }
 }
 
