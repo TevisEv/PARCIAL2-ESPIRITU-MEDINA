@@ -1,169 +1,340 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>Docente - UNAS</title>
+  <meta charset="UTF-8">
+  <title>Panel Docente · UNAS Tasks</title>
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Estilos verdes UNAS -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-light p-4">
-  <div class="container">
-    <div class="d-flex justify-content-between mb-4">
-      <h2>Panel Docente</h2>
-      <button onclick="logout()" class="btn btn-danger">Salir</button>
-    </div>
-    
-    <div class="card p-4 shadow-sm mb-4">
-      <h4 class="text-primary mb-3">Nueva Tarea</h4>
-      
-      <div class="mb-3">
-        <label class="fw-bold">1. Selecciona Grupo de Responsabilidad:</label>
-        <select id="groupSelect" class="form-select" onchange="loadStudents()">
-          <option value="">-- Elige un grupo --</option>
-        </select>
+
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar collapsed"> <!-- inicia colapsado -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">U</div>
+      <div class="sidebar-title">
+        Sistema de Tareas<br>UNAS
       </div>
-
-      <div class="mb-3">
-        <label class="fw-bold">2. Título de la tarea:</label>
-        <input type="text" id="taskTitle" class="form-control" placeholder="Ej: Resolver ejercicios pág 10">
-      </div>
-
-      <div class="mb-3">
-        <label class="fw-bold">3. Asignar a:</label>
-        
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="assignMode" id="modeAll" value="all" checked onchange="toggleStudentList()">
-          <label class="form-check-label" for="modeAll">
-            Todos los alumnos del grupo
-          </label>
-        </div>
-        
-        <div class="form-check mb-2">
-          <input class="form-check-input" type="radio" name="assignMode" id="modeSelect" value="selected" onchange="toggleStudentList()">
-          <label class="form-check-label" for="modeSelect">
-            Seleccionar alumnos específicos
-          </label>
-        </div>
-
-        <div id="studentCheckboxes" class="border p-2 rounded bg-white d-none" style="max-height: 150px; overflow-y: auto;">
-          <small class="text-muted">Selecciona primero un grupo...</small>
-        </div>
-      </div>
-
-      <button onclick="createTask()" class="btn btn-success w-100">Publicar Tarea</button>
     </div>
 
-    <h4>Historial de Tareas Enviadas</h4>
-    <div class="card">
-        <ul id="taskList" class="list-group list-group-flush"></ul>
+    <ul class="sidebar-menu">
+
+      <li class="sidebar-item">
+        <a href="/panel-docente" class="sidebar-link active">
+          <span class="icon">🏠</span><span>Inicio</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="/docente/grupos" class="sidebar-link">
+          <span class="icon">📚</span><span>Mis grupos</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="/tareas-enviadas" class="sidebar-link">
+          <span class="icon">📩</span><span>Tareas enviadas</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="/dashboard" class="sidebar-link">
+          <span class="icon">📊</span><span>Dashboard</span>
+        </a>
+      </li>
+
+    </ul>
+  </aside>
+
+
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+
+      <!-- Botón de sidebar -->
+      <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+      <!-- Botón cerrar sesión -->
+      <button onclick="logout()" class="btn btn-outline-light btn-sm">
+        Cerrar sesión
+      </button>
+    </div>
+
+
+
+    <!-- CONTENIDO -->
+    <div class="main-inner">
+
+      <h2 class="main-title"><span>Panel Docente</span></h2>
+
+
+      <!-- NUEVA TAREA -->
+      <div class="card-3d mb-4">
+        <div class="card-3d-header">
+          <div class="card-3d-title">Nueva tarea</div>
+        </div>
+
+        <div class="card-3d-body">
+
+          <div class="mb-3">
+            <label class="label-green">1. Selecciona grupo de responsabilidad:</label>
+            <select id="groupSelect" class="form-select" onchange="loadStudents()">
+              <option value="">-- Elige un grupo --</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="label-green">2. Título de la tarea:</label>
+            <input type="text" id="taskTitle" class="form-control" placeholder="Ej: Resolver ejercicios pág. 10">
+          </div>
+
+          <div class="mb-3">
+            <label class="label-green d-block mb-1">3. Asignar a:</label>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="assignMode" id="modeAll" value="all" checked onchange="toggleStudentList()">
+              <label class="form-check-label" for="modeAll">
+                Todos los alumnos del grupo
+              </label>
+            </div>
+
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="assignMode" id="modeSelect" value="selected" onchange="toggleStudentList()">
+              <label class="form-check-label" for="modeSelect">
+                Seleccionar alumnos específicos
+              </label>
+            </div>
+
+            <div id="studentCheckboxes" class="border p-2 rounded bg-white d-none" style="max-height:150px;overflow-y:auto;">
+              <small class="text-muted">Selecciona primero un grupo...</small>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="card-3d-footer">
+          <span class="text-muted small">Las tareas se asignarán solo a alumnos del grupo seleccionado.</span>
+          <button onclick="createTask()" class="btn btn-green">Publicar tarea</button>
+        </div>
+      </div>
+
+
+      <!-- HISTORIAL -->
+      <div class="card-3d">
+        <div class="card-3d-header">
+          <div class="card-3d-title">Historial de tareas enviadas</div>
+        </div>
+
+        <div class="card-3d-body">
+          <ul id="taskList" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <script>
-    const token = localStorage.getItem('token');
 
-    // 1. Cargar mis grupos al inicio
-    async function loadGroups() {
-      const res = await fetch('/tasks/my-groups', { headers: { 'Authorization': 'Bearer '+token } });
-      const groups = await res.json();
-      const sel = document.getElementById('groupSelect');
-      groups.forEach(g => {
-        sel.innerHTML += `<option value="${g.id}">${g.name}</option>`;
-      });
-      loadHistory();
+
+<!-- LOGICA -->
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = '/login';
+
+
+  /** ===========================
+      CARGAR GRUPOS
+     =========================== */
+  async function loadGroups() {
+    const res = await fetch('/tasks/my-groups', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const groups = await res.json();
+    const sel = document.getElementById('groupSelect');
+
+    groups.forEach(g => {
+      sel.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+    });
+
+    loadHistory();
+  }
+
+
+
+  /** ===========================
+      CARGAR ALUMNOS
+     =========================== */
+  async function loadStudents() {
+    const groupId = document.getElementById('groupSelect').value;
+    const container = document.getElementById('studentCheckboxes');
+
+    container.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Cargando...';
+
+    if (!groupId) {
+      container.innerHTML = '<small>Selecciona un grupo</small>';
+      return;
     }
 
-    // 2. Cargar alumnos cuando cambia el grupo
-    async function loadStudents() {
-      const groupId = document.getElementById('groupSelect').value;
-      const container = document.getElementById('studentCheckboxes');
-      container.innerHTML = '<div class="spinner-border spinner-border-sm"></div> Cargando...';
+    const res = await fetch(`/tasks/students/${groupId}`, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
 
-      if(!groupId) {
-        container.innerHTML = '<small>Selecciona un grupo</small>';
-        return;
+    const students = await res.json();
+
+    if (students.length === 0) {
+      container.innerHTML = '<small class="text-danger">Este grupo no tiene alumnos.</small>';
+      return;
+    }
+
+    container.innerHTML = '';
+    students.forEach(s => {
+      container.innerHTML += `
+        <div class="form-check">
+          <input class="form-check-input student-check" type="checkbox" value="${s.id}" id="s_${s.id}">
+          <label class="form-check-label" for="s_${s.id}">${s.username}</label>
+        </div>
+      `;
+    });
+  }
+
+
+
+  /** ===========================
+      TOGGLE SECCIÓN ALUMNOS
+     =========================== */
+  function toggleStudentList() {
+    const isSelected = document.getElementById('modeSelect').checked;
+    const list = document.getElementById('studentCheckboxes');
+    if (isSelected) list.classList.remove('d-none');
+    else list.classList.add('d-none');
+  }
+
+
+
+  /** ===========================
+      CREAR TAREA
+     =========================== */
+  async function createTask() {
+    const groupId = document.getElementById('groupSelect').value;
+    const title = document.getElementById('taskTitle').value;
+    const mode = document.querySelector('input[name="assignMode"]:checked').value;
+
+    if (!groupId || !title) return alert("Completa grupo y título");
+
+    let studentIds = [];
+
+    if (mode === 'selected') {
+      const checks = document.querySelectorAll('.student-check:checked');
+      checks.forEach(c => studentIds.push(c.value));
+      if (studentIds.length === 0) return alert("Selecciona al menos un alumno");
+    }
+
+    const res = await fetch('/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        title,
+        group_id: groupId,
+        mode,
+        student_ids: studentIds
+      })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    loadHistory();
+  }
+
+
+
+  /** ===========================
+      HISTORIAL
+     =========================== */
+  async function loadHistory() {
+    const res = await fetch('/tasks', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    const tasks = await res.json();
+    const list = document.getElementById('taskList');
+
+    list.innerHTML = '';
+
+    tasks.forEach(t => {
+      list.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b>${t.title}</b><br>
+            <small class="text-muted">Grupo: ${t.group_name || 'N/A'} → Alumno: ${t.alumno}</small>
+          </span>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${t.id})">Eliminar</button>
+        </li>
+      `;
+    });
+  }
+
+
+
+  /** ===========================
+      ELIMINAR TAREA
+     =========================== */
+  async function deleteTask(id) {
+    if (!confirm("¿Borrar tarea?")) return;
+    await fetch('/tasks/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    loadHistory();
+  }
+
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login';
+  }
+
+
+  /** ===========================
+      TOGGLE SIDEBAR
+     =========================== */
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('expanded');
+
+      if (isOpen) {
+        sidebar.classList.remove('expanded');
+        sidebar.classList.add('collapsed');
+        mainContent.classList.remove('shifted');
+      } else {
+        sidebar.classList.add('expanded');
+        sidebar.classList.remove('collapsed');
+        mainContent.classList.add('shifted');
       }
+    });
+  });
 
-      const res = await fetch(`/tasks/students/${groupId}`, { headers: { 'Authorization': 'Bearer '+token } });
-      const students = await res.json();
-      
-      if(students.length === 0) {
-        container.innerHTML = '<small class="text-danger">Este grupo no tiene alumnos.</small>';
-        return;
-      }
 
-      container.innerHTML = '';
-      students.forEach(s => {
-        container.innerHTML += `
-          <div class="form-check">
-            <input class="form-check-input student-check" type="checkbox" value="${s.id}" id="s_${s.id}">
-            <label class="form-check-label" for="s_${s.id}">${s.username}</label>
-          </div>
-        `;
-      });
-    }
+  // INICIO
+  loadGroups();
+</script>
 
-    // 3. UI Toggle
-    function toggleStudentList() {
-      const isSelectedMode = document.getElementById('modeSelect').checked;
-      const list = document.getElementById('studentCheckboxes');
-      if(isSelectedMode) list.classList.remove('d-none');
-      else list.classList.add('d-none');
-    }
-
-    // 4. Enviar Tarea
-    async function createTask() {
-        const groupId = document.getElementById('groupSelect').value;
-        const title = document.getElementById('taskTitle').value;
-        const mode = document.querySelector('input[name="assignMode"]:checked').value;
-        
-        if(!groupId || !title) return alert("Completa grupo y título");
-
-        let studentIds = [];
-        if(mode === 'selected') {
-            const checks = document.querySelectorAll('.student-check:checked');
-            checks.forEach(c => studentIds.push(c.value));
-            if(studentIds.length === 0) return alert("Selecciona al menos un alumno");
-        }
-
-        const res = await fetch('/tasks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-            body: JSON.stringify({
-                title,
-                group_id: groupId,
-                mode, // 'all' o 'selected'
-                student_ids: studentIds
-            })
-        });
-
-        const data = await res.json();
-        alert(data.message);
-        loadHistory();
-    }
-
-    async function loadHistory() {
-        const res = await fetch('/tasks', { headers: { 'Authorization': 'Bearer '+token } });
-        const tasks = await res.json();
-        const list = document.getElementById('taskList');
-        list.innerHTML = '';
-        tasks.forEach(t => {
-            list.innerHTML += `<li class="list-group-item d-flex justify-content-between">
-                <span>
-                    <b>${t.title}</b> <br>
-                    <small class="text-muted">Grupo: ${t.group_name || 'N/A'} -> Alumno: ${t.alumno}</small>
-                </span>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${t.id})">Eliminar</button>
-            </li>`;
-        });
-    }
-
-    async function deleteTask(id) {
-        if(!confirm("¿Borrar tarea?")) return;
-        await fetch('/tasks/'+id, { method: 'DELETE', headers: { 'Authorization': 'Bearer '+token } });
-        loadHistory();
-    }
-
-    function logout() { localStorage.clear(); window.location.href='/login'; }
-    loadGroups();
-  </script>
 </body>
 </html>

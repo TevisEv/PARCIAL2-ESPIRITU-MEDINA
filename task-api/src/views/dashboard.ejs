@@ -2,90 +2,220 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mis Tareas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-white">
-  <nav class="navbar navbar-dark bg-primary px-4">
-    <span class="navbar-brand mb-0 h1">UNAS Tasks</span>
-    <button onclick="logout()" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
-  </nav>
+  <title>Dashboard · UNAS Task Manager</title>
 
-  <div class="container mt-5">
-    <h3>Mis Tareas</h3>
-    
-    <div class="input-group mb-4 mt-3">
-      <input type="text" id="newTitle" class="form-control" placeholder="Nueva tarea...">
-      <button class="btn btn-success" onclick="createTask()">Agregar</button>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Estilo general -->
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ============================= -->
+  <!--           SIDEBAR            -->
+  <!-- ============================= -->
+  <aside class="sidebar collapsed">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">U</div>
+      <div class="sidebar-title">Sistema de Tareas<br>UNAS</div>
     </div>
 
-    <ul id="taskList" class="list-group">
-      </ul>
-  </div>
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <a href="/panel-docente" class="sidebar-link">
+          <span class="icon">🏠</span><span>Inicio</span>
+        </a>
+      </li>
 
-  <script>
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = '/login';
+      <li class="sidebar-item">
+        <a href="/dashboard" class="sidebar-link active">
+          <span class="icon">📊</span><span>Dashboard</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
 
-    // 1. Cargar Tareas
-    async function loadTasks() {
-      const res = await fetch('/tasks', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (!res.ok) {
-        if (res.status === 401) logout();
-        return;
-      }
-      const tasks = await res.json();
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      
-      tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.className = `list-group-item d-flex justify-content-between align-items-center ${task.done ? 'list-group-item-success' : ''}`;
-        li.innerHTML = `
-          <span style="${task.done ? 'text-decoration: line-through;' : ''}">${task.title}</span>
-          <div>
-            <button onclick="deleteTask(${task.id})" class="btn btn-sm btn-danger">X</button>
+  <!-- ============================= -->
+  <!--          MAIN CONTENT         -->
+  <!-- ============================= -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+      <div class="d-flex align-items-center gap-3">
+        <span id="docenteName" class="small fw-semibold"></span>
+        <button onclick="logout()" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <!-- ============================= -->
+    <!--        CONTENIDO REAL        -->
+    <!-- ============================= -->
+    <div class="main-inner">
+
+      <h2 class="main-title"><span>Dashboard Docente</span></h2>
+
+      <!-- ============================= -->
+      <!--     TARJETAS RESUMEN 3D      -->
+      <!-- ============================= -->
+      <div class="card-grid mb-4">
+
+        <!-- Tareas publicadas -->
+        <div class="card-3d">
+          <div class="card-3d-header">
+            <div class="card-3d-title">Tareas publicadas</div>
           </div>
-        `;
-        list.appendChild(li);
-      });
-    }
+          <div class="card-3d-body">
+            <h2 id="statTasks" class="fw-bold text-success mb-1">0</h2>
+            <p class="text-muted small mb-0">Total enviadas a tus grupos</p>
+          </div>
+        </div>
 
-    // 2. Crear Tarea
-    async function createTask() {
-      const title = document.getElementById('newTitle').value;
-      if(!title) return;
-      
-      await fetch('/tasks', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token 
-        },
-        body: JSON.stringify({ title })
-      });
-      document.getElementById('newTitle').value = '';
-      loadTasks();
-    }
+        <!-- Grupos asignados -->
+        <div class="card-3d">
+          <div class="card-3d-header">
+            <div class="card-3d-title">Mis grupos</div>
+          </div>
+          <div class="card-3d-body">
+            <h2 id="statGroups" class="fw-bold text-success mb-1">0</h2>
+            <p class="text-muted small mb-0">Total de grupos de responsabilidad</p>
+          </div>
+        </div>
 
-    // 3. Eliminar Tarea
-    async function deleteTask(id) {
-      await fetch(`/tasks/${id}`, {
-        method: 'DELETE',
+        <!-- Total de Alumnos  -->
+        <div class="card-3d">
+          <div class="card-3d-header">
+            <div class="card-3d-title">Total de Alumnos</div>
+          </div>
+          <div class="card-3d-body">
+            <h2 id="statStudents" class="fw-bold text-success mb-1">0</h2>
+            <p class="text-muted small mb-0">Sumatoria de alumnos en tus grupos</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================= -->
+      <!--        ÚLTIMAS TAREAS         -->
+      <!-- ============================= -->
+      <div class="card-3d">
+        <div class="card-3d-header">
+          <div class="card-3d-title">Últimas tareas enviadas</div>
+        </div>
+
+        <div class="card-3d-body" style="max-height: 350px; overflow-y: auto;">
+          <ul id="recentTasks" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================= -->
+<!--           SCRIPT JS           -->
+<!-- ============================= -->
+<script>
+/* -----------------------------------
+   Sidebar plegable
+----------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.querySelector('.sidebar');
+  const mainContent = document.querySelector('.main-content');
+  const toggleBtn = document.getElementById('sidebarToggle');
+
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = sidebar.classList.contains('expanded');
+
+    if (isOpen) {
+      sidebar.classList.remove('expanded');
+      sidebar.classList.add('collapsed');
+      mainContent.classList.remove('shifted');
+    } else {
+      sidebar.classList.remove('collapsed');
+      sidebar.classList.add('expanded');
+      mainContent.classList.add('shifted');
+    }
+  });
+});
+
+/* -----------------------------------
+   Dashboard dinámico
+----------------------------------- */
+
+const token = localStorage.getItem('token');
+
+if (!token) window.location.href = '/login';
+
+// Mostrar nombre
+const storedUser = localStorage.getItem('username');
+if (storedUser) document.getElementById('docenteName').innerText = storedUser;
+
+
+// Cargar estadísticas + últimas tareas
+loadDashboard();
+
+async function loadDashboard() {
+
+  try {
+    // Grupos
+    const groupsRes = await fetch('/tasks/my-groups', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const groups = await groupsRes.json();
+    document.getElementById('statGroups').innerText = groups.length;
+
+    // Calcular alumnos totales
+    let totalStudents = 0;
+    for (const g of groups) {
+      const studentsRes = await fetch(`/tasks/students/${g.id}`, {
         headers: { 'Authorization': 'Bearer ' + token }
       });
-      loadTasks();
+      const students = await studentsRes.json();
+      totalStudents += students.length;
+    }
+    document.getElementById('statStudents').innerText = totalStudents;
+
+    // Tareas
+    const tasksRes = await fetch('/tasks', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const tasks = await tasksRes.json();
+    document.getElementById('statTasks').innerText = tasks.length;
+
+    // Mostrar últimas tareas
+    const recentList = document.getElementById('recentTasks');
+    recentList.innerHTML = '';
+
+    tasks.slice(0, 8).forEach(t => {
+      recentList.innerHTML += `
+        <li class="list-group-item">
+          <b>${t.title}</b><br>
+          <small class="text-muted">
+            Grupo: ${t.group_name || 'N/A'} • Alumno: ${t.alumno}
+          </small>
+        </li>`;
+    });
+
+    if (tasks.length === 0) {
+      recentList.innerHTML = '<li class="list-group-item text-muted">No hay tareas recientes.</li>';
     }
 
-    function logout() {
-      localStorage.removeItem('token');
-      window.location.href = '/';
-    }
+  } catch (err) {
+    console.error(err);
+  }
+}
 
-    // Iniciar carga
-    loadTasks();
-  </script>
+function logout() {
+  localStorage.clear();
+  window.location.href = '/login';
+}
+</script>
+
 </body>
 </html>

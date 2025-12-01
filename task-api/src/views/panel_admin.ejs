@@ -1,146 +1,310 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>Admin - UNAS</title>
+  <meta charset="UTF-8">
+  <title>Administrador · UNAS Task Manager</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="p-4 bg-light">
-  <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Panel Administrador</h2>
-      <button onclick="logout()" class="btn btn-danger">Cerrar Sesión</button>
+<body>
+
+<div class="app-layout">
+
+  <!-- ============================= -->
+  <!--           SIDEBAR            -->
+  <!-- ============================= -->
+  <aside class="sidebar collapsed">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">U</div>
+      <div class="sidebar-title">
+        Sistema de Tareas<br>UNAS
+      </div>
     </div>
-    
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm h-100">
-          <h5 class="text-primary">1. Crear Grupo</h5>
-          <input type="text" id="groupName" class="form-control mb-2" placeholder="Nombre (Ej: Matemáticas)">
-          <button onclick="createGroup()" class="btn btn-success w-100">Crear Grupo</button>
-        </div>
-      </div>
 
-      <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm h-100">
-          <h5 class="text-primary">2. Asignar Docente a Grupo</h5>
-          <label>Docente:</label>
-          <select id="assignTeacherSelect" class="form-select mb-2"></select>
-          <label>Grupo:</label>
-          <select id="assignGroupSelect" class="form-select mb-2"></select>
-          <button onclick="assignTeacherToGroup()" class="btn btn-warning w-100 text-white">Asignar Responsabilidad</button>
-        </div>
-      </div>
+    <ul class="sidebar-menu">
 
-      <div class="col-md-4 mb-3">
-        <div class="card p-3 shadow-sm h-100">
-          <h5 class="text-primary">3. Registrar Usuario</h5>
-          <input type="text" id="newUser" class="form-control mb-2" placeholder="Usuario">
-          <input type="password" id="newPass" class="form-control mb-2" placeholder="Contraseña">
-          <div class="row g-2 mb-2">
-            <div class="col">
-              <select id="newRole" class="form-select" onchange="toggleGroupSelect()">
-                <option value="alumno">Alumno</option>
-                <option value="docente">Docente</option>
-                <option value="admin">Admin</option>
-              </select>
+      <li class="sidebar-item">
+        <a href="/panel-admin" class="sidebar-link active">
+          <span class="icon">⚙️</span><span>Administración</span>
+        </a>
+      </li>
+
+    </ul>
+  </aside>
+
+  <!-- ============================= -->
+  <!--         MAIN CONTENT          -->
+  <!-- ============================= -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+      <div class="d-flex align-items-center gap-3">
+        <span id="adminName" class="small fw-semibold"></span>
+        <button onclick="logout()" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="main-inner">
+
+      <!-- TÍTULO PÁGINA -->
+      <h2 class="main-title"><span>Panel administrador</span></h2>
+
+      <!-- ============================= -->
+      <!--         TARJETA SUPERIOR      -->
+      <!-- ============================= -->
+      <div class="card-3d mb-4">
+        <div class="card-3d-header">
+          <div class="card-3d-title">Gestión académica</div>
+        </div>
+
+        <div class="card-3d-body">
+          <div class="row g-3">
+
+            <!-- ========================== -->
+            <!--      CREAR GRUPO          -->
+            <!-- ========================== -->
+            <div class="col-lg-4">
+              <div class="card-main p-3 h-100">
+                <h5 class="title-primary mb-3">1. Crear grupo</h5>
+
+                <input type="text" id="groupName" class="form-control mb-2" placeholder="Ej: Matemáticas">
+
+                <button onclick="createGroup()" class="btn btn-green w-100">Crear grupo</button>
+              </div>
             </div>
-            <div class="col">
-              <select id="userGroupSelect" class="form-select">
-                <option value="">Grupo (Solo Alumno)</option>
-              </select>
+
+            <!-- ========================== -->
+            <!--   ASIGNAR DOCENTE A GRUPO -->
+            <!-- ========================== -->
+            <div class="col-lg-4">
+              <div class="card-main p-3 h-100">
+                <h5 class="title-primary mb-3">2. Asignar docente</h5>
+
+                <label class="label-green">Docente</label>
+                <select id="assignTeacherSelect" class="form-select mb-2"></select>
+
+                <label class="label-green">Grupo</label>
+                <select id="assignGroupSelect" class="form-select mb-3"></select>
+
+                <button onclick="assignTeacherToGroup()" class="btn btn-secondary-green w-100">
+                  Asignar responsabilidad
+                </button>
+              </div>
             </div>
+
+            <!-- ========================== -->
+            <!--      REGISTRAR USUARIO     -->
+            <!-- ========================== -->
+            <div class="col-lg-4">
+              <div class="card-main p-3 h-100">
+                <h5 class="title-primary mb-3">3. Registrar usuario</h5>
+
+                <input type="text" id="newUser" class="form-control mb-2" placeholder="Usuario">
+                <input type="password" id="newPass" class="form-control mb-2" placeholder="Contraseña">
+
+                <div class="row g-2 mb-2">
+                  <div class="col">
+                    <select id="newRole" class="form-select" onchange="toggleGroupSelect()">
+                      <option value="alumno">Alumno</option>
+                      <option value="docente">Docente</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+
+                  <div class="col">
+                    <select id="userGroupSelect" class="form-select">
+                      <option value="">Grupo (solo alumno)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button onclick="createUser()" class="btn btn-green w-100">Registrar</button>
+
+              </div>
+            </div>
+
           </div>
-          <button onclick="createUser()" class="btn btn-primary w-100">Registrar</button>
         </div>
       </div>
-    </div>
 
-    <h4 class="mt-4">Lista de Usuarios</h4>
-    <div class="card p-3">
-      <ul id="userList" class="list-group list-group-flush"></ul>
+      <!-- ============================= -->
+      <!--         LISTA DE USUARIOS     -->
+      <!-- ============================= -->
+      <div class="card-3d">
+        <div class="card-3d-header">
+          <div class="card-3d-title">Lista de usuarios</div>
+        </div>
+
+        <div class="card-3d-body" style="max-height: 350px; overflow-y: auto;">
+          <ul id="userList" class="list-group list-group-flush"></ul>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-  <script>
-    const token = localStorage.getItem('token');
-    if(!token) window.location.href = '/login';
+<!-- ============================= -->
+<!--             JS                -->
+<!-- ============================= -->
 
-    async function loadData() {
-      const res = await fetch('/admin/dashboard-data', { headers: { 'Authorization': 'Bearer '+token } });
-      if(!res.ok) return logout();
-      const data = await res.json();
-      
-      // Llenar selects de Grupos (Para asignar docente y para crear alumno)
-      const options = '<option value="">Seleccionar Grupo</option>' + 
-                      data.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
-      
-      document.getElementById('assignGroupSelect').innerHTML = options;
-      document.getElementById('userGroupSelect').innerHTML = options;
+<script>
+  /* Sidebar plegable */
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const toggleBtn = document.getElementById('sidebarToggle');
 
-      // Llenar select de Docentes
-      const teacherOptions = data.teachers.map(t => `<option value="${t.id}">${t.username}</option>`).join('');
-      document.getElementById('assignTeacherSelect').innerHTML = teacherOptions;
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('expanded');
 
-      // Llenar lista usuarios
-      const list = document.getElementById('userList');
-      list.innerHTML = '';
-      data.users.forEach(u => {
-        let badge = u.role === 'admin' ? 'bg-danger' : (u.role === 'docente' ? 'bg-warning text-dark' : 'bg-info');
-        list.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
-          <span><b>${u.username}</b> <span class="badge ${badge}">${u.role}</span></span>
-          <span class="text-muted small">${u.group_name || 'Sin grupo principal'}</span>
+      if (isOpen) {
+        sidebar.classList.remove('expanded');
+        sidebar.classList.add('collapsed');
+        mainContent.classList.remove('shifted');
+      } else {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.add('expanded');
+        mainContent.classList.add('shifted');
+      }
+    });
+  });
+
+  /* ==========================================
+          LÓGICA DEL ADMINISTRADOR
+  ========================================== */
+
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = '/login';
+
+  // Mostrar nombre si existe
+  const user = localStorage.getItem('username');
+  if (user) document.getElementById('adminName').innerText = user;
+
+
+  async function loadData() {
+    const res = await fetch('/admin/dashboard-data', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+
+    if (!res.ok) return logout();
+
+    const data = await res.json();
+
+    // GRUPOS
+    const options =
+      '<option value="">Seleccionar grupo</option>' +
+      data.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+
+    document.getElementById('assignGroupSelect').innerHTML = options;
+    document.getElementById('userGroupSelect').innerHTML = options;
+
+    // DOCENTES
+    const teacherOptions = data.teachers
+      .map(t => `<option value="${t.id}">${t.username}</option>`)
+      .join('');
+
+    document.getElementById('assignTeacherSelect').innerHTML = teacherOptions;
+
+    // USUARIOS
+    const list = document.getElementById('userList');
+    list.innerHTML = '';
+
+    data.users.forEach(u => {
+      let badgeClass =
+        u.role === 'admin'
+          ? 'bg-danger'
+          : (u.role === 'docente'
+              ? 'bg-warning text-dark'
+              : 'bg-info');
+
+      list.innerHTML += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b>${u.username}</b>
+            <span class="badge ${badgeClass} ms-2 text-uppercase">${u.role}</span>
+          </span>
+
+          <span class="text-muted small">
+            ${u.group_name || 'Sin grupo'}
+          </span>
         </li>`;
-      });
-    }
+    });
+  }
 
-    async function createUser() {
-      const body = {
-        username: document.getElementById('newUser').value,
-        password: document.getElementById('newPass').value,
-        role: document.getElementById('newRole').value,
-        group_id: document.getElementById('userGroupSelect').value || null
-      };
-      await fetch('/admin/create-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-        body: JSON.stringify(body)
-      });
-      loadData();
-    }
+  async function createUser() {
+    const body = {
+      username: document.getElementById('newUser').value,
+      password: document.getElementById('newPass').value,
+      role: document.getElementById('newRole').value,
+      group_id: document.getElementById('userGroupSelect').value || null
+    };
 
-    async function createGroup() {
-      await fetch('/admin/create-group', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-        body: JSON.stringify({ name: document.getElementById('groupName').value })
-      });
-      loadData();
-    }
+    await fetch('/admin/create-user', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify(body)
+    });
 
-    async function assignTeacherToGroup() {
-      await fetch('/admin/assign-teacher', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+token },
-        body: JSON.stringify({
-          teacher_id: document.getElementById('assignTeacherSelect').value,
-          group_id: document.getElementById('assignGroupSelect').value
-        })
-      });
-      alert('Asignación realizada');
-    }
-
-    function toggleGroupSelect() {
-        const role = document.getElementById('newRole').value;
-        const groupSel = document.getElementById('userGroupSelect');
-        if(role === 'alumno') groupSel.disabled = false;
-        else { groupSel.disabled = true; groupSel.value = ""; }
-    }
-
-    function logout() { localStorage.clear(); window.location.href='/login'; }
-    
-    // Init
-    toggleGroupSelect();
     loadData();
-  </script>
+  }
+
+  async function createGroup() {
+    await fetch('/admin/create-group', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ name: document.getElementById('groupName').value })
+    });
+
+    loadData();
+  }
+
+  async function assignTeacherToGroup() {
+    await fetch('/admin/assign-teacher', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({
+        teacher_id: document.getElementById('assignTeacherSelect').value,
+        group_id: document.getElementById('assignGroupSelect').value
+      })
+    });
+
+    alert('Asignación realizada');
+  }
+
+  function toggleGroupSelect() {
+    const role = document.getElementById('newRole').value;
+    const groupSel = document.getElementById('userGroupSelect');
+
+    if (role === 'alumno') {
+      groupSel.disabled = false;
+    } else {
+      groupSel.disabled = true;
+      groupSel.value = '';
+    }
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login';
+  }
+
+  toggleGroupSelect();
+  loadData();
+</script>
+
 </body>
 </html>

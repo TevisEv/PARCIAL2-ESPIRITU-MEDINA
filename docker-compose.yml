@@ -39,7 +39,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # - ./task-api/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./task-api/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - tasks-net
     healthcheck:

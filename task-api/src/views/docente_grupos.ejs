@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Grupos · Docente</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar collapsed" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">U</div>
+      <div class="sidebar-title">
+        Sistema de Tareas<br>UNAS
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <a href="/panel-docente" class="sidebar-link">
+          <span class="icon">🏠</span><span>Inicio</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="/docente/grupos" class="sidebar-link active">
+          <span class="icon">🧑‍🏫</span><span>Mis grupos</span>
+        </a>
+      </li>
+
+      <li class="sidebar-item">
+        <a href="/dashboard" class="sidebar-link">
+          <span class="icon">📊</span><span>Dashboard</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content" id="mainContent">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+      <button onclick="logout()" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+    </div>
+
+    <!-- Main inner -->
+    <div class="main-inner">
+
+      <h2 class="main-title"><span>Mis Grupos Asignados</span></h2>
+
+      <!-- LISTADO DE GRUPOS -->
+      <div id="groupsContainer" class="card-grid"></div>
+
+      <!-- TARJETA DE ALUMNOS -->
+      <div class="card-3d mt-4 d-none" id="studentsCard">
+        <div class="card-3d-header">
+          <div class="card-3d-title" id="studentsTitle">Alumnos del grupo</div>
+        </div>
+
+        <div class="card-3d-body" id="studentsList">
+          <small class="text-muted">Seleccione un grupo.</small>
+        </div>
+
+        <div class="card-3d-footer">
+          <a href="#" onclick="hideStudents()" class="card-link">Ocultar lista</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================
+// TOKEN
+// ================================
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "/login";
+
+
+// ================================
+// SIDEBAR TOGGLE
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("sidebar");
+  const mainContent = document.getElementById("mainContent");
+  const toggleBtn = document.getElementById("sidebarToggle");
+
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("expanded");
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("shifted");
+  });
+});
+
+
+// ================================
+// CARGAR GRUPOS DEL DOCENTE
+// ================================
+async function loadGroups() {
+  const res = await fetch("/tasks/my-groups", {
+    headers: { "Authorization": "Bearer " + token }
+  });
+
+  const groups = await res.json();
+  const container = document.getElementById("groupsContainer");
+  container.innerHTML = "";
+
+  if (groups.length === 0) {
+    container.innerHTML = `
+      <div class="card-main p-4">
+        <p class="text-muted mb-0">No tienes grupos asignados.</p>
+      </div>`;
+    return;
+  }
+
+  groups.forEach(g => {
+    container.innerHTML += `
+      <div class="card-3d">
+        <div class="card-3d-header">
+          <div class="card-3d-title">${g.name}</div>
+        </div>
+
+        <div class="card-3d-body">
+          <p class="small text-muted mb-2">Grupo asignado oficialmente</p>
+        </div>
+
+        <div class="card-3d-footer">
+          <a class="card-link" href="#" onclick="loadStudents(${g.id}, '${g.name}')">
+            Ver alumnos →
+          </a>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// ================================
+// CARGAR ALUMNOS DEL GRUPO
+// ================================
+async function loadStudents(groupId, groupName) {
+  const card = document.getElementById("studentsCard");
+  const title = document.getElementById("studentsTitle");
+  const list = document.getElementById("studentsList");
+
+  title.innerText = `Alumnos del grupo: ${groupName}`;
+  card.classList.remove("d-none");
+
+  list.innerHTML = `
+    <div class="spinner-border spinner-border-sm text-success"></div> 
+    <span class="ms-1">Cargando...</span>
+  `;
+
+  const res = await fetch(`/tasks/students/${groupId}`, {
+    headers: { "Authorization": "Bearer " + token }
+  });
+
+  const students = await res.json();
+  list.innerHTML = "";
+
+  if (students.length === 0) {
+    list.innerHTML = `<small class="text-muted">Este grupo no tiene alumnos.</small>`;
+    return;
+  }
+
+  students.forEach(s => {
+    list.innerHTML += `
+      <div class="p-2 border-bottom">
+        <b>${s.username}</b>
+      </div>
+    `;
+  });
+}
+
+function hideStudents() {
+  document.getElementById("studentsCard").classList.add("d-none");
+}
+
+function logout() {
+  localStorage.clear();
+  window.location.href = "/login";
+}
+
+loadGroups();
+</script>
+
+</body>
+</html>

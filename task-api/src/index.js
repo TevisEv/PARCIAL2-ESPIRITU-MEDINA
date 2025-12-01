@@ -21,13 +21,19 @@ app.use("/admin", adminRoutes);
 // Rutas Vistas
 app.get("/", (req, res) => res.render("index"));
 app.get("/login", (req, res) => res.render("login"));
+app.get("/register", (req, res) => res.render("register"));
 
 // Paneles (Protegidos por Login en el Frontend via JS)
 app.get("/panel-admin", (req, res) => res.render("panel_admin"));
 app.get("/panel-docente", (req, res) => res.render("panel_docente"));
 app.get("/panel-alumno", (req, res) => res.render("panel_alumno"));
+app.get("/dashboard", (req, res) => res.render("dashboard"));
+app.get('/docente/grupos', (req, res) => res.render('docente_grupos'));
+
+
 
 const PORT = process.env.PORT || 3200;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log("🔥 Cambio detectado!");
 });

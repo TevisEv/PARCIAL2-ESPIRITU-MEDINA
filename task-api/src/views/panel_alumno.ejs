@@ -1,38 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <title>Alumno - UNAS</title>
+  <meta charset="UTF-8">
+  <title>Alumno · UNAS Tasks</title>
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="container mt-4">
-  <div class="d-flex justify-content-between">
-    <h2>Mis Tareas</h2>
-    <button onclick="localStorage.clear(); window.location.href='/login'" class="btn btn-danger">Salir</button>
+<body>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">U</div>
+      <div class="sidebar-title">
+        Sistema de Tareas<br>UNAS
+      </div>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li class="sidebar-item">
+        <a href="/panel-alumno" class="sidebar-link active">
+          <span class="icon">📋</span><span>Mis tareas</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+      <button onclick="logout()" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+    </div>
+
+    <div class="main-inner">
+      <h2 class="main-title"><span>Panel del Alumno</span></h2>
+
+      <!-- ===========================
+           TABS
+      ============================ -->
+      <ul class="nav nav-tabs mb-4" id="taskTabs">
+        <li class="nav-item">
+          <a class="nav-link active" data-tab="all" href="#">Todas mis tareas</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-tab="pending" href="#">Tareas pendientes</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-tab="done" href="#">Tareas completadas</a>
+        </li>
+      </ul>
+
+      <!-- CONTENEDOR DE TAREAS -->
+      <div id="tasksContainer"></div>
+
+    </div>
   </div>
-  <hr>
-  <ul id="taskList" class="list-group"></ul>
+</div>
 
-  <script>
-    const token = localStorage.getItem('token');
-    
-    async function loadTasks() {
-      const res = await fetch('/tasks', { headers: { 'Authorization': 'Bearer '+token } });
-      if(!res.ok) window.location.href = '/login';
-      
-      const tasks = await res.json();
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      
-      if(tasks.length === 0) list.innerHTML = '<p class="text-muted">No tienes tareas pendientes.</p>';
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = '/login';
 
-      tasks.forEach(t => {
-        list.innerHTML += `<li class="list-group-item">
-          <h5>${t.title}</h5>
-          <small class="text-muted">Asignado por: ${t.docente}</small>
-        </li>`;
-      });
+  // ========== LOGOUT ==========
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login';
+  }
+
+  // ========== MARCAR COMO COMPLETADA ==========
+  async function completeTask(id) {
+    const res = await fetch(`/tasks/${id}/complete`, {
+      method: "PATCH",
+      headers: {
+        "Authorization": "Bearer " + token,
+      }
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    loadTasks(currentTab);
+  }
+
+  // ========== CARGAR LISTA DE TAREAS ==========
+  let currentTab = "all";
+
+  async function loadTasks(type = "all") {
+    currentTab = type;
+
+    let endpoint = "/tasks";
+    if (type === "pending") endpoint = "/tasks/pending";
+    if (type === "done") endpoint = "/tasks/done";
+
+    const res = await fetch(endpoint, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) return logout();
+      return;
     }
-    loadTasks();
-  </script>
+
+    const tasks = await res.json();
+    const container = document.getElementById("tasksContainer");
+
+    if (tasks.length === 0) {
+      container.innerHTML = `
+        <div class="card-3d p-4 text-center text-muted">
+          No hay tareas en esta categoría.
+        </div>`;
+      return;
+    }
+
+    // Renderizar lista
+    let html = `<div class="card-3d p-3"><ul class="list-group list-group-flush">`;
+
+    tasks.forEach(t => {
+      html += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <span class="fw-bold title-primary">${t.title}</span><br>
+            <small class="text-muted">
+              Docente: ${t.docente} · Grupo: ${t.group_name || 'N/A'}
+            </small>
+          </div>
+
+          ${
+            t.done
+              ? `<span class="badge bg-success">Completada</span>`
+              : `<button class="btn btn-secondary-green btn-sm" onclick="completeTask(${t.id})">Marcar completada</button>`
+          }
+        </li>
+      `;
+    });
+
+    html += "</ul></div>";
+    container.innerHTML = html;
+  }
+
+  // ========== EVENTOS DE TABS ==========
+  document.querySelectorAll("#taskTabs .nav-link").forEach(tab => {
+    tab.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      document.querySelectorAll("#taskTabs .nav-link")
+        .forEach(t => t.classList.remove("active"));
+
+      tab.classList.add("active");
+
+      loadTasks(tab.dataset.tab);
+    });
+  });
+
+  // ========== INICIO ==========
+  loadTasks("all");
+</script>
+
+<!-- SIDEBAR TOGGLE -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', () => {
+      const isOpen = sidebar.classList.contains('expanded');
+
+      if (isOpen) {
+        sidebar.classList.remove('expanded');
+        mainContent.classList.remove('shifted');
+      } else {
+        sidebar.classList.add('expanded');
+        mainContent.classList.add('shifted');
+      }
+    });
+  });
+</script>
+
 </body>
 </html>

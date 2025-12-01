@@ -1,0 +1,433 @@
+/* ======================================================
+   ESTILOS GENERALES - UNAS TASK MANAGER
+   Tema Verde Oficial
+====================================================== */
+
+/* ===== Fondo general con degradado verde ===== */
+.landing-bg {
+  background: linear-gradient(135deg, #0B4722, #116530);
+  padding: 40px;
+  min-height: 100vh;
+}
+
+/* ===== Tarjeta principal del landing ===== */
+.landing-card {
+  background: #ffffff;
+  border-radius: 25px;
+  max-width: 750px;
+  width: 100%;
+  border: 2px solid #d6e6d8;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.10);
+}
+
+/* ===== Título principal ===== */
+.landing-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #0B4722;
+  text-shadow: 0px 2px 4px rgba(0,0,0,0.18);
+}
+
+/* ===== Subtítulo ===== */
+.landing-subtitle {
+  font-size: 1.2rem;
+  color: #0F2A1B;
+  opacity: 0.9;
+}
+
+/* ===== Botón sólido verde ===== */
+.btn-green {
+  background: #116530;
+  border: 2px solid #116530;
+  color: white !important;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.2s ease-in-out;
+}
+
+.btn-green:hover {
+  background: #0B4722;
+  border-color: #0B4722;
+}
+
+/* ===== Botón contorno verde ===== */
+.btn-outline-green {
+  background: white;
+  border: 2px solid #116530;
+  color: #116530 !important;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: 0.2s ease-in-out;
+}
+
+.btn-outline-green:hover {
+  background: #116530;
+  color: white !important;
+}
+
+/* ===== Footer del landing ===== */
+.footer-title {
+  color: #0B4722;
+  font-size: 1rem;
+}
+
+.footer-subtitle {
+  color: #0F2A1B;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* ======================================================
+   ESTILOS UNIFICADOS PARA TODAS LAS DEMÁS VISTAS
+====================================================== */
+
+/* ===== Navbar general ===== */
+.navbar-main {
+  background: #116530 !important;
+  color: white !important;
+  padding: 12px 25px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
+}
+
+.navbar-main .navbar-brand {
+  color: white !important;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* ===== Tarjetas generales ===== */
+.card-main {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #d1e6d3;
+  box-shadow: 0px 3px 10px rgba(0,0,0,0.08);
+}
+
+/* ===== Títulos principales ===== */
+.title-primary {
+  font-weight: 700;
+  color: #0B4722;
+}
+
+/* ===== Inputs ===== */
+.form-control {
+  border-radius: 8px !important;
+  border: 1px solid #bcd8c1 !important;
+}
+
+/* ===== Botones secundarios ===== */
+.btn-secondary-green {
+  background: #DFF5E3;
+  border: 1px solid #116530;
+  color: #0B4722;
+  font-weight: 600;
+}
+
+.btn-secondary-green:hover {
+  background: #cdeece;
+}
+
+/* ===== Etiquetas ===== */
+.label-green {
+  color: #0B4722;
+  font-weight: 600;
+}
+
+/* ===== Lista ===== */
+.list-group-item {
+  border-radius: 8px !important;
+}
+
+/* ===== Scroll ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #116530;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #e8f2ea;
+}
+
+/* ======================================================
+   LAYOUT CON SIDEBAR + TARJETAS 3D
+====================================================== */
+
+/* Layout general */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f3f7f4;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  background: #0b4722;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 16px;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.25);
+  transition: left 0.25s ease;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.sidebar-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: #0b4722;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: 10px;
+}
+
+.sidebar-item {
+  margin-bottom: 8px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #e9f7ec;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.sidebar-link span.icon {
+  width: 24px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.sidebar-link:hover {
+  background: #116530;
+  transform: translateX(2px);
+}
+
+.sidebar-link.active {
+  background: #1d7b3e;
+}
+
+/* ======================================================
+   TOPBAR Y CONTENIDO
+====================================================== */
+
+/* Botón superior derecho del header */
+.topbar {
+  height: 60px;
+  background: #0f7940;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;  /* boton a la izquierda, cerrar sesión a la derecha */
+  padding: 0 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+
+/* CONTENIDO PRINCIPAL */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenedor interno con padding (ESTE ES EL ESPACIADO BONITO) */
+.main-inner {
+  padding: 24px 28px;
+}
+
+/* Titulo central con subrayado tipo UNAS */
+.main-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0b4722;
+  margin-bottom: 24px;
+}
+
+.main-title span {
+  border-bottom: 3px solid #0b4722;
+  padding-bottom: 4px;
+}
+
+/* GRID de tarjetas */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* TARJETA 3D */
+.card-3d {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #d2e8d6;
+  padding: 18px 18px 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(0) scale(1);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.18), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.card-3d-header {
+  border-bottom: 3px solid #14a34a;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+}
+
+.card-3d-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #0b4722;
+}
+
+.card-3d-body {
+  position: relative;
+  z-index: 2;
+  font-size: 0.9rem;
+  color: #123121;
+}
+
+.card-3d-footer {
+  position: relative;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #4b5f50;
+}
+
+.card-3d:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
+.card-3d:hover::before {
+  opacity: 1;
+}
+
+/* Boton pequeno en tarjeta */
+.card-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #116530;
+  text-decoration: none;
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+/* ======================================================
+   SIDEBAR PLEGABLE (MÍNIMO CAMBIO)
+====================================================== */
+
+/* Botón hamburguesa: visible en TODO lado (pc, laptop, tablet, móvil) */
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: auto;          /* Empuja el botón a la izquierda en la topbar */
+  background: rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+
+/* ======================================================
+   RESPONSIVE (SOLO SE TOCA AQUÍ)
+====================================================== */
+
+@media (max-width: 768px) {
+  /* Sidebar: ya no se oculta, solo se desplaza para plegarse */
+  .sidebar {
+      position: fixed;
+      left: -260px;
+      top: 0;                /* ahora sí pegado arriba */
+      height: 100vh;         /* sidebar ocupa toda la altura */
+      z-index: 999;
+  }
+
+  /* Estados reales en móvil */
+  .sidebar.collapsed {
+    left: -260px;
+  }
+
+  .sidebar.expanded {
+    left: 0;
+  }
+
+  .main-content {
+    margin-left: 0;
+    transition: margin-left 0.25s ease;
+  }
+
+  .main-content.shifted {
+    margin-left: 240px;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .main-inner {
+    padding: 18px 14px;
+  }
+}
