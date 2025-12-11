@@ -11,65 +11,44 @@ const authorize = require("../middlewares/roleCheck");
 
 const router = express.Router();
 
-// Middleware global
+// Middleware global: Requiere Token y Rol 'admin'
 router.use(authJwt);
 router.use(authorize(["admin"]));
 
 // =====================================================
-// 1. Dashboard: grupos, usuarios y docentes
+// 1. Dashboard: Data para el panel de administración
+//    (Devuelve listas para llenar tablas y desplegables)
 // =====================================================
 router.get("/dashboard-data", async (req, res) => {
   try {
-    const teacherId = req.user.id;
+    console.log("Admin Dashboard: Solicitando datos...");
 
-    // 1. Total de TAREAS PUBLICADAS (únicas por título)
-    const tareasPublicadas = await db.query(
-      `SELECT COUNT(DISTINCT title) AS total
-       FROM tasks
-       WHERE created_by = $1`,
-      [teacherId]
-    );
+    // 1. Obtener todos los grupos (para los Selects)
+    const groups = await db.query("SELECT * FROM groups ORDER BY id");
 
-    // 2. Total de grupos asignados al docente
-    const misGrupos = await db.query(
-      `SELECT COUNT(*) AS total
-       FROM teacher_groups
-       WHERE teacher_id = $1`,
-      [teacherId]
-    );
+    // 2. Obtener solo docentes (para asignar responsabilidad)
+    const teachers = await db.query("SELECT id, username FROM users WHERE role = 'docente' ORDER BY username");
 
-    // 3. Total de alumnos alcanzados (tareas enviadas, pero conteo individual por envío)
-    const alumnosAlcanzados = await db.query(
-      `SELECT COUNT(*) AS total
-       FROM tasks
-       WHERE created_by = $1`,
-      [teacherId]
-    );
+    // 3. Obtener lista completa de usuarios (para la tabla inferior)
+    const users = await db.query(`
+      SELECT u.id, u.username, u.role, g.name as group_name
+      FROM users u
+      LEFT JOIN groups g ON u.group_id = g.id
+      ORDER BY u.id DESC
+    `);
 
-    // 4. Últimas tareas enviadas
-    const ultimasTareas = await db.query(
-      `SELECT t.*, u.username AS alumno, g.name AS group_name
-       FROM tasks t
-       JOIN users u ON u.id = t.assigned_to
-       LEFT JOIN groups g ON g.id = t.group_id
-       WHERE t.created_by = $1
-       ORDER BY t.id DESC
-       LIMIT 10`,
-      [teacherId]
-    );
-
+    // RESPUESTA JSON CORRECTA
     res.json({
-      tareasPublicadas: tareasPublicadas.rows[0].total,
-      misGrupos: misGrupos.rows[0].total,
-      alumnosAlcanzados: alumnosAlcanzados.rows[0].total,
-      ultimasTareas: ultimasTareas.rows
+      groups: groups.rows,
+      teachers: teachers.rows,
+      users: users.rows
     });
 
   } catch (err) {
+    console.error("Error en admin dashboard:", err);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // =====================================================
 // 2. Crear usuario
@@ -83,7 +62,7 @@ router.post("/create-user", async (req, res) => {
     }
 
     // Si es alumno → asignar grupo; si no → null
-    const finalGroup = role === "alumno" ? group_id : null;
+    const finalGroup = (role === "alumno" && group_id) ? group_id : null;
 
     const hash = await bcrypt.hash(password, 10);
 
@@ -96,6 +75,7 @@ router.post("/create-user", async (req, res) => {
     res.json({ message: "Usuario creado correctamente" });
 
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: "Error al crear usuario (¿duplicado?)" });
   }
 });
@@ -118,6 +98,7 @@ router.post("/create-group", async (req, res) => {
     res.json({ message: "Grupo creado correctamente" });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error creando grupo" });
   }
 });
@@ -136,13 +117,14 @@ router.post("/assign-teacher", async (req, res) => {
     await db.query(
       `INSERT INTO teacher_groups (teacher_id, group_id)
        VALUES ($1, $2)
-       ON CONFLICT DO NOTHING`,
+       ON CONFLICT (teacher_id, group_id) DO NOTHING`,
       [teacher_id, group_id]
     );
 
     res.json({ message: "Asignación realizada correctamente" });
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error al asignar docente" });
   }
 });
